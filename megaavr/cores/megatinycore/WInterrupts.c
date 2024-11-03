@@ -109,7 +109,7 @@
       SREG = oldSREG;
     }
   }
-#if !defined(CORE_ATTACH_EARLYCLEAR)
+#if !defined(CORE_ATTACH_EARLYCLEAR) // late clear.
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) isrBody() {
     asm volatile (
      "AttachedISR:"      "\n\t" // as the scene opens, we have r16 on the stack already, portnumber x 2 in the r16
@@ -252,7 +252,7 @@
       "icall"             "\n\t" // call their function, which is allowed to shit on any upper registers other than 28, 29, 16, and 17.
       "rjmp AIntLoop"     "\n\t" // Restart loop after.
     "AIntEnd:"            "\n\t" // sooner or later r17 will be 0 and we'll branch here.
-      // with EARLYCLEAR variant, we don't need to do anythin other than cleaning up working registers - flags already cleared.
+      // with EARLYCLEAR variant, we don't need to do anything other than cleaning up working registers - flags already cleared.
       "pop   r31"         "\n\t" // clean up a million registers
       "pop   r30"         "\n\t"
       "pop   r29"         "\n\t"
@@ -291,7 +291,7 @@
     }
     uint8_t port = digitalPinToPort(pin);
     uint8_t p = (port << 5) + bitpos;
-    *(((volatile uint8_t*) &PORTA_PIN0CTRL) + p) &= 0xF1; // int off....
+    *(((volatile uint8_t*) &PORTA_PIN0CTRL) + p) &= 0xF8; // int off....
     *((volatile uint8_t*) ((uint16_t)((port << 4) + 3)))  = (1 << bitpos);// flag clear
     intFunc[port][bitpos] = 0; // clear pointer
   }
@@ -368,7 +368,7 @@
   #endif
 #else /* This is the old implementation, and it's copyright boilerplate. */
 
-  /* -*- mode: jde; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+  /* -*- mode: jde; c-basic-offset: 2; indent-tabs-mode: nil -*- */ //<---- FFS! That was in the original!
 
   /*
   Part of the Wiring project - http://wiring.uniandes.edu.co
